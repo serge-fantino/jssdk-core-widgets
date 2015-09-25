@@ -10,11 +10,10 @@
 
     var LoginView = Backbone.View.extend({
 
+        el : "#login",
         redirectUri: null,
-
         autoShow: true,
-
-        template: null,
+        template: squid_api.template.squid_api_login,
 
         initialize: function(options) {
             if (!this.model) {
@@ -22,13 +21,13 @@
             }
             this.model.on("change:login", this.render, this);
 
-            if (typeof options.autoShow !== "undefined") {
-                this.autoShow = options.autoShow;
-            }
-            if (options.template) {
-                this.template = options.template;
-            } else {
-                this.template = squid_api.template.squid_api_login;
+            if (options) {
+                if (options.autoShow === false) {
+                    this.autoShow = false;
+                }
+                if (options.template) {
+                    this.template = options.template;
+                }
             }
         },
 
@@ -49,16 +48,18 @@
 
         render: function() {
             if (this.model) {
-                var userLogin = this.model.get("login");
-                if (userLogin && userLogin !== "") {
-                    // logged in
-                } else {
-                    if (this.autoShow) {
-                        this.login();
+                if (!this.model.get("error")) {
+                    var userLogin = this.model.get("login");
+                    if (userLogin && userLogin !== "") {
+                        // logged in
+                    } else {
+                        if (this.autoShow) {
+                            this.login();
+                        }
                     }
+                    var html = this.template(this.model.toJSON());
+                    this.$el.html(html);
                 }
-                var html = this.template(this.model.toJSON());
-                this.$el.html(html);
             }
 
             return this;
@@ -82,7 +83,13 @@
             else {
                 url += "?";
             }
-            window.location = url + "redirect_uri=" + redirectUri;
+            url = url + "redirect_uri=" + redirectUri;
+            if (!squid_api.debug) {
+                window.location = url;
+            } else {
+                // bypass redirection
+                console.log("redirection : "+url);
+            }
         },
 
         logout: function(event) {
