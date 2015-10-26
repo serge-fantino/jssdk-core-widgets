@@ -90,6 +90,8 @@
                     message = '';
                     if (jsonData.message !== null && jsonData.message !=="") {
                         message = jsonData.error.message;
+                    } else if (jsonData.error.message !== null && jsonData.error.message !=="") {
+                        message = jsonData.error.message;
                     } else if (jsonData.error.responseJSON) {
                         message = jsonData.error.responseJSON.error;
                     } else if (jsonData.error.reason) {
@@ -105,6 +107,8 @@
                         dismissible = true;
                     }
                 }
+                
+                message = message.replace("\n","<br>");
 
                 var html = this.template({"level" : level, "dismissible" : dismissible, "message" : message});
 
